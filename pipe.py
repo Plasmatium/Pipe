@@ -394,13 +394,25 @@ class Pipe:
     # 2, 4, 6
     """
     def __init__(self, function):
+        #print('__init__ called, fc=%s\n' % function)
         self.function = function
 
     def __ror__(self, other):
+        #print('__ror__ called, fc=%s\n\targ = %s' % (self.function, other))
         return self.function(other)
 
     def __call__(self, *args, **kwargs):
+        #print('__call__ called, fc=%s\n\targs=%s\n\tkwargs=%s'% (self.function, args, kwargs))
         return Pipe(lambda x: self.function(x, *args, **kwargs))
+
+    def __or__(self, pp):
+        #print('__or__ called\n\tself=%s\n\tpp=%s'%(self, pp))
+        #need some type checking function
+        #>>> add100 = take(100)|add
+        #>>> from itertools import count as ct
+        #>>> ct(1)|add100
+        #5050
+        return Pipe(lambda x: x|self|pp)
 
 @Pipe
 def take(iterable, qte):
@@ -586,7 +598,7 @@ def reverse(iterable):
 
 @Pipe
 def passed(x):
-    pass
+    return x
 
 @Pipe
 def index(iterable, value, start=0, stop=None):
